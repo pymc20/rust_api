@@ -1,13 +1,11 @@
-mod makes;
-use actix_web::{post, web, Error, HttpResponse};
-use serde::{Deserialize, Serialize};
-
-#[derive(Serialize,Deserialize)]
-pub struct Test {
-    test: String
-}
+mod note;
+mod screen;
+use actix_web::{post, Error, HttpResponse};
+use serde_json::Value;
 
 #[post("/zeplin")]
-pub async fn webhook(test: web::Json<Test>) -> Result<HttpResponse, Error> {
-    Ok(HttpResponse::Ok().body(serde_json::to_string(&test.into_inner()).unwrap()))
+pub async fn webhook(test: String) -> Result<HttpResponse, Error> {
+    let body:Value = serde_json::from_str(&test)?;
+    println!("{}",body["test"]);
+    Ok(HttpResponse::Ok().body(test))
 }
