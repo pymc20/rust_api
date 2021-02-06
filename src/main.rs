@@ -1,7 +1,13 @@
-use actix_web::{App, HttpServer, middleware};
-use rust_api::{zeplin};
+use actix_web::{App, HttpServer, middleware, HttpRequest, HttpResponse, Error, web};
+use rust_api::{ai};
 use openssl::ssl::{SslAcceptor, SslMethod, SslFiletype};
 
+async fn index(req: HttpRequest) -> Result<HttpResponse, Error> {
+    println!("{:?}", req);
+    Ok(HttpResponse::Ok()
+        .content_type("text/plain")
+        .body("Welcome!"))
+}
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -17,7 +23,8 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
         App::new()
             .wrap(middleware::Logger::default())
-            .service(zeplin::webhook)
+            .service(web::resource("/").to(index))
+            .service(ai::recommend)
     })
     .bind_openssl("0.0.0.0:8000", builder)?
     .run()
